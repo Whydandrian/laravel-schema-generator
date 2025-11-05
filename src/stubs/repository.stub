@@ -1,0 +1,46 @@
+<?php
+
+namespace {{namespace}};
+
+use App\Models\{{modelName}};
+use App\Repositories\BaseRepository;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use App\Modules\{{moduleName}}\Repositories\{{modelName}}Repository\{{modelName}}Interface;
+
+class {{class}} implements BaseRepository
+{
+    public function list(array $params = []): Collection
+    {
+        $data{{modelName}} = $this->getData($params)->get();
+        return $data{{modelName}};
+    }
+
+    public function find(int $id): array
+    {
+        $user = {{modelName}}::findOrFail($id);
+        return $user->toArray();
+    }
+
+    public function store(array $params): {{modelName}}
+    {
+        return {{modelName}}::create($params);
+    }
+
+    public function update({{modelName}} $dataModel, array $params): {{modelName}}
+    {
+        $dataModel->find($params);
+        return $$dataModel;
+    }
+
+    public function delete({{modelName}} $dataModel): void
+    {
+        $dataModel->delete();
+    }
+
+    private function getData(array $params = []): Builder
+    {
+        $usersData = {{modelName}}::filter($params)->with('roles');
+        return $usersData;
+    }
+}
