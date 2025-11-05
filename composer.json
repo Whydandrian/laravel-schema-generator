@@ -1,6 +1,6 @@
 {
     "name": "whydsee/schema-generator",
-    "description": "Laravel package untuk generate schema api",
+    "description": "Laravel package untuk generate schema api (untuk support darkaonline)",
     "type": "library",
     "license": "MIT",
     "authors": [
