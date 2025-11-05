@@ -12,12 +12,13 @@ composer require whydsee/schema-generator
 
 ### Penggunaan
 
-    Generate api
+Generate api
 
-    ```bash
-    php artisan scribes:make --table={table_names} --api
-    ```
-    Ganti `{table_names}` dengan nama table yang ingin di generate.
+```bash
+php artisan scribes:make --table={table_name} --api
+```
+
+Ganti `{table_name}` dengan nama table yang ingin di generate.
 
 ### Catatan
 
