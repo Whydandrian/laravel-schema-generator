@@ -15,13 +15,13 @@
     },
     "autoload": {
         "psr-4": {
-            "Wahyudi\\RepoServiceGenerator\\": "src/"
+            "Wahyudi\\GenerateSchema\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Wahyudi\\RepoServiceGenerator\\GenerateSchemaServiceProvider"
+                "Wahyudi\\GenerateSchema\\GenerateSchemaServiceProvider"
             ]
         }
     },
