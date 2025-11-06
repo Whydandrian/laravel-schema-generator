@@ -708,9 +708,14 @@ protected $signature = 'generate:schema
         $modelName = Str::studly(Str::singular($table));
         $routePrefix = Str::kebab(Str::plural(str_replace('_', '-', $table)));
         $moduleNameLower = strtolower($moduleName);
-        $controllerPath = "App\\Http\\Controllers\\Api\\{$modelName}Controller";
+        $controllerPath = "App\\Modules\\{$moduleName}\\Http\\Controllers\\Api\\{$modelName}Controller";
 
-        $apiRoutePath = "routes/api.php";
+        if ($this->isModular) {
+            $moduleBase = $this->moduleBasePath($moduleName);
+            $apiRoutePath = "{$moduleBase}/Routes/api.php";
+        } else {
+            $apiRoutePath = base_path("routes/api.php");
+        }
 
         if (!file_exists($apiRoutePath)) {
             $this->warn("File {$apiRoutePath} tidak ditemukan.");
@@ -719,25 +724,54 @@ protected $signature = 'generate:schema
 
         $routeContent = file_get_contents($apiRoutePath);
 
+        // Cek apakah route sudah ada
         if (strpos($routeContent, "prefix('{$routePrefix}')") !== false) {
             $this->warn("Route untuk prefix '{$routePrefix}' sudah ada.");
             return;
         }
 
+        // Generate route block
         $routeBlock = $this->generateRouteBlock($modelName, $routePrefix, $controllerPath);
 
-        $prefixPattern = "/prefix\('{$moduleNameLower}'\)->name\('{$moduleNameLower}\.'\)->group\(function\s*\(\)\s*\{/";
+        // Cari posisi terakhir sebelum closing brace terakhir
+        $lines = explode("\n", $routeContent);
+        $insertPosition = -1;
+        $lastNonEmptyLine = -1;
 
-        if (preg_match($prefixPattern, $routeContent)) {
-            $updatedContent = $this->insertRouteIntoGroup($routeContent, $routeBlock, $moduleNameLower);
+        // Cari dari belakang untuk menemukan closing brace terakhir
+        for ($i = count($lines) - 1; $i >= 0; $i--) {
+            $trimmedLine = trim($lines[$i]);
             
-            if (file_put_contents($apiRoutePath, $updatedContent)) {
-                $this->info("✓ Route untuk '{$routePrefix}' berhasil ditambahkan ke {$apiRoutePath}");
-            } else {
-                $this->error("Gagal menyimpan route ke {$apiRoutePath}");
+            // Skip empty lines dan comments
+            if (empty($trimmedLine) || strpos($trimmedLine, '//') === 0) {
+                continue;
             }
+            
+            // Jika ketemu closing brace
+            if ($trimmedLine === '});' || $trimmedLine === '});') {
+                $insertPosition = $i;
+                break;
+            }
+        }
+
+        if ($insertPosition === -1) {
+            // Jika tidak ketemu closing brace, tambahkan di akhir file
+            $this->warn("Tidak dapat menemukan closing brace, menambahkan route di akhir file.");
+            $routeContent .= "\n" . trim($routeBlock);
         } else {
-            $this->warn("Tidak dapat menemukan prefix group untuk '{$moduleNameLower}' di {$apiRoutePath}");
+            // Insert route block sebelum closing brace
+            $indent = $this->detectIndentation($lines, $insertPosition);
+            $indentedRouteBlock = $this->indentRouteBlock($routeBlock, $indent);
+            
+            array_splice($lines, $insertPosition, 0, $indentedRouteBlock);
+            $routeContent = implode("\n", $lines);
+        }
+
+        // Simpan file
+        if (file_put_contents($apiRoutePath, $routeContent)) {
+            $this->info("✓ Route untuk '{$routePrefix}' berhasil ditambahkan ke {$apiRoutePath}");
+        } else {
+            $this->error("Gagal menyimpan route ke {$apiRoutePath}");
         }
     }
 
@@ -745,47 +779,43 @@ protected $signature = 'generate:schema
     {
         $routeName = Str::kebab($modelName);
         
-        $block = "\n// {$modelName} Routes\n"
-            . "Route::prefix('{$routePrefix}')->group(function () {\n"
-            . "    Route::get('/', [{$controllerPath}::class, 'index'])->name('index');\n"
-            . "    Route::get('/{id}', [{$controllerPath}::class, 'find'])->name('show');\n"
-            . "    Route::post('/', [{$controllerPath}::class, 'store'])->name('store');\n"
-            . "    Route::put('/{id}', [{$controllerPath}::class, 'update'])->name('update');\n"
-            . "    Route::delete('/{id}', [{$controllerPath}::class, 'destroy'])->name('destroy');\n"
-            . "});\n";
+        $block = "\n    // {$modelName} Routes\n"
+            . "    Route::prefix('{$routePrefix}')->name('{$routeName}.')->group(function () {\n"
+            . "        Route::get('/', [{$controllerPath}::class, 'index'])->name('index');\n"
+            . "        Route::get('/{id}', [{$controllerPath}::class, 'find'])->name('show');\n"
+            . "        Route::post('/', [{$controllerPath}::class, 'store'])->name('store');\n"
+            . "        Route::put('/{id}', [{$controllerPath}::class, 'update'])->name('update');\n"
+            . "        Route::delete('/{id}', [{$controllerPath}::class, 'destroy'])->name('destroy');\n"
+            . "    });\n";
 
         return $block;
     }
 
-    protected function insertRouteIntoGroup($routeContent, $routeBlock, $moduleNameLower)
+    protected function detectIndentation($lines, $position)
     {
-        $lines = explode("\n", $routeContent);
-        $insertPosition = -1;
-        $braceCount = 0;
-        $inMainGroup = false;
-
-        for ($i = count($lines) - 1; $i >= 0; $i--) {
-            $line = trim($lines[$i]);
-
-            if (empty($line) || strpos($line, '//') === 0) {
-                continue;
-            }
-
-            if ($line === '});') {
-                $braceCount++;
-                if ($braceCount === 1) {
-                    $insertPosition = $i;
-                    break;
-                }
+        // Cari indentasi dari baris sebelumnya yang tidak kosong
+        for ($i = $position - 1; $i >= 0; $i--) {
+            if (trim($lines[$i]) !== '') {
+                preg_match('/^(\s*)/', $lines[$i], $matches);
+                return $matches[1] ?? '';
             }
         }
+        return '';
+    }
 
-        if ($insertPosition === -1) {
-            return $routeContent;
+    protected function indentRouteBlock($routeBlock, $baseIndent)
+    {
+        $lines = explode("\n", $routeBlock);
+        $indentedLines = [];
+        
+        foreach ($lines as $line) {
+            if (trim($line) === '') {
+                $indentedLines[] = '';
+            } else {
+                $indentedLines[] = $baseIndent . $line;
+            }
         }
-
-        array_splice($lines, $insertPosition, 0, explode("\n", $routeBlock));
-
-        return implode("\n", $lines);
+        
+        return $indentedLines;
     }
 }
