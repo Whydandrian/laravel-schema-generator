@@ -219,9 +219,7 @@ protected $signature = 'generate:schema
         $repository = $this->option('repository') ?? "{$modelName}Repository/{$modelName}Repository";
         $this->generateRepository($repository, $table);
 
-        if ($this->isModular && $table) {
-            $this->addApiRoutes($table, $name);
-        }
+        $this->addApiRoutes($table, $name);
 
         if ($this->isModular) {
             $this->info("API Module {$name} created successfully.");
@@ -707,14 +705,15 @@ protected $signature = 'generate:schema
     {
         $modelName = Str::studly(Str::singular($table));
         $routePrefix = Str::kebab(Str::plural(str_replace('_', '-', $table)));
-        $moduleNameLower = strtolower($moduleName);
-        $controllerPath = "App\\Modules\\{$moduleName}\\Http\\Controllers\\Api\\{$modelName}Controller";
-
+        
+        // Tentukan controller path dan route file berdasarkan modular atau standalone
         if ($this->isModular) {
             $moduleBase = $this->moduleBasePath($moduleName);
-            $apiRoutePath = "{$moduleBase}/Routes/api.php";
+            $apiRoutePath = "{$moduleBase}/Routes/api.php"; // Route di dalam module
+            $controllerPath = "App\\Modules\\{$moduleName}\\Http\\Controllers\\Api\\{$modelName}Controller";
         } else {
-            $apiRoutePath = base_path("routes/api.php");
+            $apiRoutePath = base_path("routes/api.php"); // Route global Laravel
+            $controllerPath = "App\\Http\\Controllers\\Api\\{$modelName}Controller";
         }
 
         if (!file_exists($apiRoutePath)) {
