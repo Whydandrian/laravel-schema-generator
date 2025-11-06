@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class MakeRepositoryServiceCommand extends Command
+class GenerateSchemaCommand extends Command
 {
 protected $signature = 'generate:schema
         {--name= : Nama module yang akan dibuat (kosongkan jika tidak ingin menggunakan module)}

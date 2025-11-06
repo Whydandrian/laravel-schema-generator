@@ -3,9 +3,9 @@
 namespace Wahyudi\RepoServiceGenerator;
 
 use Illuminate\Support\ServiceProvider;
-use Wahyudi\RepoServiceGenerator\Commands\MakeRepositoryServiceCommand;
+use Wahyudi\RepoServiceGenerator\Commands\GenerateSchemaCommand;
 
-class RepoServiceGeneratorServiceProvider extends ServiceProvider
+class GenerateSchemaServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
@@ -16,7 +16,7 @@ class RepoServiceGeneratorServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->commands([
-                MakeRepositoryServiceCommand::class,
+                GenerateSchemaCommand::class,
             ]);
         }
     }
