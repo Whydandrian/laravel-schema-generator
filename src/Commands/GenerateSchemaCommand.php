@@ -18,7 +18,7 @@ protected $signature = 'generate:schema
         {--all : Generate semua file lengkap}
         {--api : Generate API controller lengkap}';
 
-    protected $description = 'Generate module files atau standalone API files (controller, request, service, repository)';
+    protected $description = 'Generate schema api';
 
     protected $isModular = false;
 
