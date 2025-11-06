@@ -149,7 +149,7 @@ class {{class}} extends BaseApiController
     /**
      * @OA\Delete(
      *   path="/api/{{modelNamePlural}}/{id}",
-     *   tags={"{{moduleName}}/{{modelName}}"},
+     *   tags={"{{modelName}}"},
      *   security={{"Bearer":{}}},
      *   summary="Delete a {{modelName}} by ID",
      *
