@@ -1,6 +1,6 @@
 <?php
 
-namespace Wahyudi\RepoServiceGenerator\Commands;
+namespace Wahyudi\GenerateSchema\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;

@@ -1,9 +1,9 @@
 <?php
 
-namespace Wahyudi\RepoServiceGenerator;
+namespace Wahyudi\GenerateSchema;
 
 use Illuminate\Support\ServiceProvider;
-use Wahyudi\RepoServiceGenerator\Commands\GenerateSchemaCommand;
+use Wahyudi\GenerateSchema\Commands\GenerateSchemaCommand;
 
 class GenerateSchemaServiceProvider extends ServiceProvider
 {
