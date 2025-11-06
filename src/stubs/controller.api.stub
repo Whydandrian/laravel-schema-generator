@@ -23,7 +23,7 @@ class {{class}} extends BaseApiController
      */
     /**
      * @OA\Get(
-     *   path="/api/{{modelNamePlural}}",
+     *   path="/{{modelNamePlural}}",
      *   tags={"{{modelName}}"},
      *   security={{"Bearer":{}}},
      *   summary="List all {{modelName}}",
@@ -46,7 +46,7 @@ class {{class}} extends BaseApiController
      */
     /**
      * @OA\Get(
-     *   path="/api/{{modelNamePlural}}/{id}",
+     *   path="/{{modelNamePlural}}/{id}",
      *   tags={"{{modelName}}"},
      *   security={{"Bearer":{}}},
      *   summary="Get {{modelName}} detail by ID",
@@ -77,7 +77,7 @@ class {{class}} extends BaseApiController
      */
     /**
      * @OA\Post(
-     *   path="/api/{{modelNamePlural}}",
+     *   path="/{{modelNamePlural}}",
      *   tags={"{{modelName}}"},
      *   security={{"Bearer":{}}},
      *   summary="Create a new {{modelName}}",
@@ -109,7 +109,7 @@ class {{class}} extends BaseApiController
      */
     /**
      * @OA\Put(
-     *   path="/api/{{modelNamePlural}}/{id}",
+     *   path="/{{modelNamePlural}}/{id}",
      *   tags={"{{modelName}}"},
      *   security={{"Bearer":{}}},
      *   summary="Update an existing {{modelName}}",
@@ -148,7 +148,7 @@ class {{class}} extends BaseApiController
      */
     /**
      * @OA\Delete(
-     *   path="/api/{{modelNamePlural}}/{id}",
+     *   path="/{{modelNamePlural}}/{id}",
      *   tags={"{{modelName}}"},
      *   security={{"Bearer":{}}},
      *   summary="Delete a {{modelName}} by ID",
